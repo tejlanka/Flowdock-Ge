@@ -38,7 +38,7 @@ repositories {
 dependencies {
     compile "com.xebialabs.deployit:udm-plugin-api:$apiVersion"
     compile "com.xebialabs.deployit:engine-spi:$apiVersion"
-    compile fileTree(dir: "$xlReleaseHome/lib", include: ['server*.jar'])
+    compile fileTree(dir: "$xlReleaseHome/lib", include: ['*.jar'])
 
     compile "org.apache.httpcomponents:httpclient:4.4.1"
     compile "nl.javadude.t2bus:t2-bus:1.2.1"

@@ -11,6 +11,7 @@ import com.xebialabs.xlrelease.domain.PlanItem;
 import com.xebialabs.xlrelease.domain.Release;
 import com.xebialabs.xlrelease.domain.Task;
 import com.xebialabs.xlrelease.domain.status.TaskStatus;
+import com.xebialabs.xlrelease.flowdock.plugin.exception.FlowdockException;
 import com.xebialabs.xlrelease.service.UserProfilesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.xebialabs.xlrelease.configuration.UserProfile;
@@ -33,7 +34,7 @@ public class ChatMessage extends FlowdockMessage{
     protected String fromAddress;
     protected String source;
     protected String event;
-    protected static UserProfilesService userProfilesService;
+    protected UserProfilesService userProfilesService;
 
     private static ChatMessage singleton;
 
@@ -95,9 +96,15 @@ public class ChatMessage extends FlowdockMessage{
         return postData.toString();
     }
 
-    public static ChatMessage fromAuditableDeployitEvent(PlanItem pi) {
-        ChatMessage msg = getInstance();
+    public ChatMessage fromAuditableDeployitEvent(PlanItem pi) throws FlowdockException {
         String content = "";
+        if (userProfilesService == null) {
+            throw new FlowdockException("userProfilesService not initialized");
+        }
+        if (pi.getProperty("owner") == null) {
+            throw new FlowdockException("owner property not found");
+        }
+
 
         UserProfile userProfile = userProfilesService.findByUsername(pi.getProperty("owner").toString());
 
@@ -128,13 +135,13 @@ public class ChatMessage extends FlowdockMessage{
         }
 
 
-        msg.setContent(content);
-        msg.setSubject("XL Release event");
-        msg.setFromAddress(XLRELEASE_RELEASE_MAIL);
-        msg.setSource("XL Release");
-        msg.setTags("XL Release");
-        msg.setEvent("message");
+        this.setContent(content);
+        this.setSubject("XL Release event");
+        this.setFromAddress(XLRELEASE_RELEASE_MAIL);
+        this.setSource("XL Release");
+        this.setTags("XL Release");
+        this.setEvent("message");
 
-        return msg;
+        return this;
     }
 }

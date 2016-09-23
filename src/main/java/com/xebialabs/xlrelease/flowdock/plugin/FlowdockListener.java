@@ -81,7 +81,7 @@ public class FlowdockListener {
                                     logger.debug("Flowdock: Ready to send Release Team Inbox Notification");
                                     FlowdockApi api = new FlowdockApi(flowdockConfiguration);
                                     TeamInboxMessage msg = TeamInboxMessage.fromAuditableDeployitEvent(release);
-                                    ChatMessage chatMessage = ChatMessage.fromAuditableDeployitEvent(release);
+                                    ChatMessage chatMessage = ChatMessage.getInstance().fromAuditableDeployitEvent(release);
 
                                     if (releaseStatus.hasBeenStarted() && releaseStatus.isActive()) {
                                         if (releaseStatus.equals(ReleaseStatus.FAILED)) {
@@ -133,7 +133,7 @@ public class FlowdockListener {
                                     logger.debug("Flowdock: Ready to send Phase Team Inbox Notification");
                                     FlowdockApi api = new FlowdockApi(flowdockConfiguration);
                                     TeamInboxMessage msg = TeamInboxMessage.fromAuditableDeployitEvent(phase);
-                                    ChatMessage chatMessage = ChatMessage.fromAuditableDeployitEvent(phase);
+                                    ChatMessage chatMessage = ChatMessage.getInstance().fromAuditableDeployitEvent(phase);
 
                                     if (phaseStatus.hasBeenStarted() && phaseStatus.isActive()) {
                                         if (phaseStatus.equals(PhaseStatus.FAILED)) {
@@ -188,7 +188,7 @@ public class FlowdockListener {
                                     logger.debug("Flowdock: Ready to send Task Team Inbox Notification");
                                     FlowdockApi api = new FlowdockApi(flowdockConfiguration);
                                     TeamInboxMessage msg = TeamInboxMessage.fromAuditableDeployitEvent(task);
-                                    ChatMessage chatMessage = ChatMessage.fromAuditableDeployitEvent(task);
+                                    ChatMessage chatMessage = ChatMessage.getInstance().fromAuditableDeployitEvent(task);
 
                                     if (taskStatus.hasBeenStarted() && taskStatus.isActive()) {
                                         if (taskStatus.equals(TaskStatus.FAILED)) {

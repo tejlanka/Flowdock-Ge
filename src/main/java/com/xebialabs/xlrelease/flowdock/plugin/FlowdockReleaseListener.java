@@ -49,7 +49,7 @@ public class FlowdockReleaseListener {
                     logger.debug("FlowdockReleaseListener: Ready to send Team Inbox Notification");
                     FlowdockApi api = new FlowdockApi(flowdockConfiguration);
                     TeamInboxMessage msg = TeamInboxMessage.fromAuditableDeployitEvent(release);
-                    ChatMessage chatMessage = ChatMessage.fromAuditableDeployitEvent(release);
+                    ChatMessage chatMessage = ChatMessage.getInstance().fromAuditableDeployitEvent(release);
 
 
                     if (releaseStatus.hasBeenStarted() && releaseStatus.isActive()) {
