@@ -1,105 +1,51 @@
-defaultTasks 'build'
-
-buildscript {
-  repositories {
-    jcenter()
-  }
-  dependencies {
-    classpath "nl.javadude.gradle.plugins:license-gradle-plugin:0.11.0"
-  }
+plugins {
+    id "com.github.hierynomus.license" version "0.13.0"
+    id "com.xebialabs.xlr.docker" version "1.1.12"
 }
 
-apply plugin: "com.github.hierynomus.license"
+
 apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin: 'eclipse'
 apply plugin: 'maven'
-
-group = 'com.xebialabs.deployit.community'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 version = '1.0.2'
-def apiVersion = '4.0.1'
-def xlreleaseHome = "/Applications/Xl2"
+
+def apiVersion = '2016.1.0'
+
+def xlReleaseHome = project.hasProperty('xlReleaseHome') ? project.xlReleaseHome : System.env.XLRELEASE_HOME
+if (!xlReleaseHome) {
+  throw new RuntimeException("Please specify location of unpacked XL Release server installation in your " +
+      "gradle.properties or with '-PxlReleaseHome=/path/to/xl/release/server' command line option")
+}
+
+xlrDocker {
+    version = '5.0.1.10'
+}
 
 repositories {
-  mavenLocal()
-  mavenCentral()
-  maven {
-      credentials {
+    mavenCentral()
+    maven {
+        credentials {
             username 'community-plugins'
             password 'community'
         }
-      url 'http://nexus.xebialabs.com/nexus/content/repositories/releases'
+        url 'http://nexus.xebialabs.com/nexus/content/repositories/releases'
     }
 }
 
-configurations {
-  compile {
-    transitive = false
-  }
-  itestCompile { extendsFrom testCompile }
-    itestRuntime { extendsFrom itestCompile, testRuntime }
-}
-
 dependencies {
-  compile "com.xebialabs.deployit:udm-plugin-api:$apiVersion"
-  compile "com.xebialabs.deployit:engine-spi:$apiVersion"
-  compile "com.xebialabs.deployit:engine-api:$apiVersion"
-  compile "com.google.guava:guava:10.0.1"
-  compile "nl.javadude.t2bus:t2-bus:1.2.1"
-  compile "org.slf4j:slf4j-api:1.7.5"
-  compile "org.springframework:spring-beans:3.2.2.RELEASE"
-  compile "joda-time:joda-time:2.7"
-  compile fileTree(dir: "$xlreleaseHome/lib", include: ['*.jar'])
-  testCompile "junit:junit-dep:4.10"
-  itestCompile fileTree(dir: "$xlreleaseHome/lib", include: ['*.jar'])
+    compile "com.xebialabs.deployit:udm-plugin-api:$apiVersion"
+    compile "com.xebialabs.deployit:engine-spi:$apiVersion"
+    compile fileTree(dir: "$xlReleaseHome/lib", include: ['server*.jar'])
+
+    compile "org.apache.httpcomponents:httpclient:4.4.1"
+    compile "nl.javadude.t2bus:t2-bus:1.2.1"
 }
 
-sourceSets {
-        itest {
-            java {
-                srcDirs = ['src/test/itest']
-            }
-            compileClasspath = sourceSets.main.output + configurations.testCompile + configurations.itestCompile
-            runtimeClasspath = sourceSets.itest.output + configurations.itestCompile + sourceSets.main.output + configurations.itestRuntime
-        }
-}
-
-import org.apache.tools.ant.filters.*
- 
-processResources {
-    filter ReplaceTokens, tokens: [
-        "project.version": project.property("version"),
-        "project.artifactId": project.property("name")
-    ]
-}
-
-task sourcesJar(type: Jar) {
-    from sourceSets.main.allSource
-    classifier = 'sources'
-}
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = "javadoc"
-    from javadoc.destinationDir
-}
-
-artifacts {
-    archives sourcesJar, javadocJar
-}
 
 license {
     header rootProject.file('src/main/license/xebialabs_community.license')
-    strictCheck true
+    strictCheck false
 }
-
-task itest(dependsOn: 'itestClasses',type: Test) {
-        testClassesDir = sourceSets.itest.output.classesDir
-        classpath = sourceSets.itest.runtimeClasspath
-}  
-
-itest.configure {
-        useJUnit() {
-        }
-}   
